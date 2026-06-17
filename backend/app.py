@@ -6,6 +6,7 @@ from sqlalchemy.engine import Engine
 from config import Config
 from models import db
 from routes import api_bp
+from reports import reports_bp
 
 def create_app():
     app = Flask(__name__)

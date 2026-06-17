@@ -1,7 +1,7 @@
 // ==========================================
 // Configuración API
 // ==========================================
-const BASE_URL = 'http://127.0.0.1:5000/api';
+const BASE_URL = 'https://silver-doodle-4j7g6p69p4xq35qj7-5000.app.github.dev/api';
 
 const API = {
     async get(endpoint) {
