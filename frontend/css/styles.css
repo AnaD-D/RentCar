@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Open+Sans:wght@400;600&display=swap');
+
+:root {
+    --deep-space-blue: #273043ff;
+    --lavender-grey: #9197aeff;
+    --mint-cream: #eff6eeff;
+    --strawberry-red: #f02d3aff;
+    --primary-scarlet: #dd0426ff;
+    --border-radius: 6px;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: var(--mint-cream);
+    color: var(--deep-space-blue);
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+.card {
+    border: 1px solid var(--lavender-grey);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    background-color: #ffffff;
+}
+
+.btn-primary {
+    background-color: var(--primary-scarlet);
+    border-color: var(--primary-scarlet);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: var(--strawberry-red);
+    border-color: var(--strawberry-red);
+}
+
+.sidebar {
+    background-color: var(--deep-space-blue);
+    min-height: 100vh;
+    color: var(--mint-cream);
+}
+
+.sidebar a {
+    color: var(--lavender-grey);
+    text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar a:hover, .sidebar a.active {
+    color: var(--mint-cream);
+    background-color: rgba(255,255,255,0.1);
+    border-left: 4px solid var(--primary-scarlet);
+}

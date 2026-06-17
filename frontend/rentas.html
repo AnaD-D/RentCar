@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentCar - Operaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <div class="col-md-2 sidebar p-3">
+            <h4 class="text-center mb-4 text-white">RentCar<span style="color: var(--primary-scarlet);">.</span></h4>
+            <a href="index.html"><i class="fa-solid fa-chart-line me-2"></i> Dashboard</a>
+            <a href="catalogos.html"><i class="fa-solid fa-list me-2"></i> Catálogos</a>
+            <a href="vehiculos.html"><i class="fa-solid fa-car me-2"></i> Vehículos</a>
+            <a href="clientes.html"><i class="fa-solid fa-users me-2"></i> Clientes</a>
+            <a href="rentas.html" class="active"><i class="fa-solid fa-key me-2"></i> Rentas</a>
+            <a href="reportes.html"><i class="fa-solid fa-file-pdf me-2"></i> Reportes</a>
+        </div>
+
+        <div class="col-md-10 p-4">
+            <h2 class="mb-4">Operaciones de Renta</h2>
+
+            <ul class="nav nav-tabs mb-4" id="rentaTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#inspeccion" type="button" role="tab">
+                        <i class="fa-solid fa-clipboard-check me-2"></i>1. Inspección Previa
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#contratos" type="button" role="tab">
+                        <i class="fa-solid fa-file-contract me-2"></i>2. Rentas y Devoluciones
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="rentaTabsContent">
+                
+                <div class="tab-pane fade show active" id="inspeccion" role="tabpanel">
+                    <div class="card p-4">
+                        <h5 class="mb-3 text-uppercase">Checklist de Inspección de Vehículo</h5>
+                        <form id="form-inspeccion">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Vehículo a Inspeccionar</label>
+                                    <select class="form-select" id="insp-vehiculo" required>
+                                        <option value="">Seleccione vehículo...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Cliente</label>
+                                    <select class="form-select" id="insp-cliente" required>
+                                        <option value="">Seleccione cliente...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Empleado Inspector</label>
+                                    <select class="form-select" id="insp-empleado" required>
+                                        <option value="">Seleccione empleado...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="card bg-light p-3 mb-3 border-0">
+                                <h6 class="mb-3 text-muted">Evaluación de Estado Físico</h6>
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="insp-ralladuras">
+                                            <label class="form-check-label">¿Tiene Ralladuras?</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="insp-cristal">
+                                            <label class="form-check-label">¿Roturas de Cristal?</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="insp-gato">
+                                            <label class="form-check-label">¿Tiene Gato Hidráulico?</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="insp-repuesto">
+                                            <label class="form-check-label">¿Goma de Repuesto?</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <label class="form-label">Cantidad de Combustible</label>
+                                    <select class="form-select" id="insp-combustible" required>
+                                        <option value="1/4">1/4</option>
+                                        <option value="1/2">1/2</option>
+                                        <option value="3/4">3/4</option>
+                                        <option value="Lleno">Lleno</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Estado de Gomas (Detalle)</label>
+                                    <input type="text" class="form-control" id="insp-gomas" placeholder="Ej: Delanteras 80%, Traseras 90%" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Fecha Inspección</label>
+                                    <input type="date" class="form-control" id="insp-fecha" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check me-2"></i>Registrar Inspección</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="contratos" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="card p-4">
+                                <h5 class="mb-3 text-uppercase">Crear Contrato de Renta</h5>
+                                <form id="form-renta">
+                                    <div class="mb-3">
+                                        <label class="form-label">Vehículo (Solo Disponibles)</label>
+                                        <select class="form-select" id="renta-vehiculo" required>
+                                            <option value="">Seleccione...</option>
+                                        </select>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label">Cliente</label>
+                                            <select class="form-select" id="renta-cliente" required></select>
+                                        </div>
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label">Empleado</label>
+                                            <select class="form-select" id="renta-empleado" required></select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label">Monto por Día (RD$)</label>
+                                            <input type="number" class="form-control" id="renta-monto" required min="1">
+                                        </div>
+                                        <div class="col-6 mb-3">
+                                            <label class="form-label">Cantidad de Días</label>
+                                            <input type="number" class="form-control" id="renta-dias" required min="1">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha de Inicio</label>
+                                        <input type="date" class="form-control" id="renta-fecha" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Comentario</label>
+                                        <textarea class="form-control" id="renta-comentario" rows="2"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-key me-2"></i>Comenzar Alquiler</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7">
+                            <div class="card p-4">
+                                <h5 class="mb-3 text-uppercase">Procesar Devolución</h5>
+                                <form id="form-devolucion" class="row g-3 align-items-end mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Número de Renta Activa</label>
+                                        <input type="number" class="form-control" id="dev-id" placeholder="Ej: 1" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fecha de Entrega Real</label>
+                                        <input type="date" class="form-control" id="dev-fecha" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Nota / Comentario de Devolución</label>
+                                        <input type="text" class="form-control" id="dev-comentario" placeholder="Vehículo devuelto sin novedades...">
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-dark w-100"><i class="fa-solid fa-arrow-rotate-left me-2"></i>Completar Devolución e Ingressar Vehículo</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

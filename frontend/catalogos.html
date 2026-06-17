@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentCar - Catálogos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <div class="col-md-2 sidebar p-3">
+            <h4 class="text-center mb-4 text-white">RentCar<span style="color: var(--primary-scarlet);">.</span></h4>
+            <a href="index.html"><i class="fa-solid fa-chart-line me-2"></i> Dashboard</a>
+            <a href="catalogos.html" class="active"><i class="fa-solid fa-list me-2"></i> Catálogos</a>
+            <a href="vehiculos.html"><i class="fa-solid fa-car me-2"></i> Vehículos</a>
+            <a href="clientes.html"><i class="fa-solid fa-users me-2"></i> Clientes</a>
+            <a href="rentas.html"><i class="fa-solid fa-key me-2"></i> Rentas</a>
+            <a href="reportes.html"><i class="fa-solid fa-file-pdf me-2"></i> Reportes</a>
+        </div>
+
+        <div class="col-md-10 p-4">
+            <h2 class="mb-4">Gestión de Catálogos</h2>
+
+            <ul class="nav nav-tabs mb-4" id="catalogoTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#marcas" type="button" role="tab">Marcas</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#modelos" type="button" role="tab">Modelos</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="catalogoTabsContent">
+                
+                <div class="tab-pane fade show active" id="marcas" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card p-4">
+                                <h5 class="mb-3">Agregar Marca</h5>
+                                <form id="form-marca">
+                                    <div class="mb-3">
+                                        <label class="form-label">Descripción</label>
+                                        <input type="text" class="form-control" id="desc-marca" required placeholder="Ej. Toyota">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Guardar Marca</button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="card p-4">
+                                <h5 class="mb-3">Marcas Registradas</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Descripción</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabla-marcas">
+                                            </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="modelos" role="tabpanel">
+                    <div class="card p-4">
+                        <p class="text-muted">La estructura de modelos va aquí. Puedes copiar el diseño de Marcas y agregar un select para elegir la Marca asociada.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
