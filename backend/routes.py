@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from models import db, Marca, TipoVehiculo, TipoCombustible, Modelo, Vehiculo, Cliente, Empleado, Inspeccion, RentaDevolucion
 from datetime import datetime
+from models import Cliente
 from utils import validar_cedula_dominicana
 
 api_bp = Blueprint('api_bp', __name__)
@@ -27,6 +28,20 @@ def create_marca():
     db.session.commit()
 
     return jsonify({"mensaje": "Marca guardada exitosamente", "id": nueva_marca.id}), 201
+
+@api_bp.route('/marcas/<int:id>', methods=['DELETE'])
+def delete_marca(id):
+    marca = Marca.query.get(id)
+    if not marca:
+        return jsonify({"error": "Marca no encontrada"}), 404
+        
+    try:
+        db.session.delete(marca)
+        db.session.commit()
+        return jsonify({"mensaje": "Marca eliminada exitosamente"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "No puedes eliminar esta marca porque tiene modelos o vehículos asociados."}), 400
 
 # Gestión Tipos de Vehículo
 @api_bp.route('/tipos_vehiculo', methods=['GET'])
@@ -205,3 +220,91 @@ def procesar_devolucion(id):
         
     db.session.commit()
     return jsonify({"mensaje": "Devolución procesada y vehículo liberado"}), 200
+
+# RUTAS PARA ELIMINAR
+
+@api_bp.route('/tipos_vehiculo/<int:id>', methods=['DELETE'])
+def delete_tipo(id):
+    item = TipoVehiculo.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "En uso"}), 400
+
+@api_bp.route('/combustibles/<int:id>', methods=['DELETE'])
+def delete_combustible(id):
+    item = TipoCombustible.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "En uso"}), 400
+
+@api_bp.route('/modelos/<int:id>', methods=['DELETE'])
+def delete_modelo(id):
+    item = Modelo.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "En uso"}), 400
+
+@api_bp.route('/vehiculos/<int:id>', methods=['DELETE'])
+def delete_vehiculo(id):
+    item = Vehiculo.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "En uso"}), 400
+
+@api_bp.route('/empleados/<int:id>', methods=['DELETE'])
+def delete_empleado(id):
+    item = Empleado.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "En uso"}), 400
+    
+@api_bp.route('/clientes/<int:id>', methods=['DELETE'])
+def delete_cliente(id):
+    item = Cliente.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "No se puede eliminar porque este cliente ya tiene rentas o inspecciones registradas."}), 400
+    
+@api_bp.route('/rentas', methods=['GET'])
+def get_todas_rentas():
+    # Hacemos un JOIN para que el JSON incluya el nombre del cliente y del vehículo
+    rentas = db.session.query(
+        RentaDevolucion.id,
+        RentaDevolucion.fecha_renta,
+        RentaDevolucion.estado,
+        Cliente.nombre.label('cliente'),
+        Vehiculo.descripcion.label('vehiculo')
+    ).join(Cliente, RentaDevolucion.id_cliente == Cliente.id)\
+     .join(Vehiculo, RentaDevolucion.id_vehiculo == Vehiculo.id).all()
+    
+    return jsonify([{
+        "id": r.id,
+        "fecha_renta": r.fecha_renta.strftime('%Y-%m-%d'),
+        "cliente": r.cliente,
+        "vehiculo": r.vehiculo,
+        "estado": r.estado
+    } for r in rentas]), 200

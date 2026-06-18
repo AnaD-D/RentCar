@@ -50,5 +50,22 @@ const API = {
             console.error("Error en PUT:", error);
             return null;
         }
+    },
+
+    async delete(endpoint) {
+        try {
+            const response = await fetch(`${BASE_URL}${endpoint}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || `Error HTTP: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Error en DELETE:", error);
+            alert(`No se pudo eliminar: ${error.message}`);
+            return null;
+        }
     }
 };

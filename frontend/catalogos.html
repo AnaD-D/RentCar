@@ -26,13 +26,19 @@
             <h2 class="mb-4">Gestión de Catálogos</h2>
 
             <ul class="nav nav-tabs mb-4" id="catalogoTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#marcas" type="button" role="tab">Marcas</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#modelos" type="button" role="tab">Modelos</button>
-                </li>
-            </ul>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#marcas" type="button">Marcas</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#modelos" type="button">Modelos</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tipos" type="button">Tipos de Vehículo</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#combustibles" type="button">Combustibles</button>
+    </li>
+</ul>
 
             <div class="tab-content" id="catalogoTabsContent">
                 
@@ -61,6 +67,7 @@
                                                 <th>ID</th>
                                                 <th>Descripción</th>
                                                 <th>Estado</th>
+                                                <th>Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody id="tabla-marcas">
@@ -104,6 +111,7 @@
                                                 <th>ID Marca</th>
                                                 <th>Descripción</th>
                                                 <th>Estado</th>
+                                                <th>Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody id="tabla-modelos">
@@ -115,6 +123,60 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="tab-pane fade" id="tipos" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card p-4">
+                                <h5 class="mb-3">Agregar Tipo</h5>
+                                <form id="form-tipo">
+                                    <div class="mb-3">
+                                        <label class="form-label">Descripción</label>
+                                        <input type="text" class="form-control" id="desc-tipo" required placeholder="Ej. Automóvil, Jeepeta">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Guardar Tipo</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card p-4">
+                                <h5 class="mb-3">Tipos Registrados</h5>
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light"><tr><th>ID</th><th>Descripción</th><th>Estado</th><th>Acciones</th></tr></thead>
+                                    <tbody id="tabla-tipos"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="combustibles" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card p-4">
+                                <h5 class="mb-3">Agregar Combustible</h5>
+                                <form id="form-combustible">
+                                    <div class="mb-3">
+                                        <label class="form-label">Descripción</label>
+                                        <input type="text" class="form-control" id="desc-combustible" required placeholder="Ej. Gasolina, Gasoil">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Guardar Combustible</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card p-4">
+                                <h5 class="mb-3">Combustibles Registrados</h5>
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light"><tr><th>ID</th><th>Descripción</th><th>Estado</th>
+                                    <th>Acciones</th></tr></thead>
+                                    <tbody id="tabla-combustibles"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                     </div>
                 </div>
 
