@@ -72,9 +72,49 @@
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="modelos" role="tabpanel">
-                    <div class="card p-4">
-                        <p class="text-muted">La estructura de modelos va aquí. Puedes copiar el diseño de Marcas y agregar un select para elegir la Marca asociada.</p>
+                <div class="tab-pane fade" id="modelos" role="tabpanel">                                                                   
+                    <div class="row">
+                        <div class="col-md-4">                                                                                         
+                            <div class="card p-4">
+                                <h5 class="mb-3">Agregar Modelo</h5>
+                                <form id="form-modelo">
+                                    <div class="mb-3">
+                                        <label class="form-label">Marca Asociada</label>
+                                        <select class="form-select" id="marca-modelo" required>
+                                            <option value="">Seleccione una marca...</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Descripción</label>
+                                        <input type="text" class="form-control" id="desc-modelo" required placeholder="Ej. Civic">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Guardar Modelo</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="card p-4">
+                                <h5 class="mb-3">Modelos Registrados</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>ID Marca</th>
+                                                <th>Descripción</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabla-modelos">
+                                            <tr><td colspan="4" class="text-center text-muted">Cargando modelos...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                     </div>
                 </div>
 

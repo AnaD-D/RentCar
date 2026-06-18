@@ -39,9 +39,9 @@ def reporte_rentas():
 
     return df.to_json(orient='records'), 200
 
-    @reports_bp.route('/reporte-rentas/exportar-pdf', methods=['GET'])
-    def exportar_pdf():
-        fecha_inicio = request.args.get('fecha_inicio')
+@reports_bp.route('/reporte-rentas/exportar-pdf', methods=['GET'])
+def exportar_pdf():
+    fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
 
     query = db.session.query(

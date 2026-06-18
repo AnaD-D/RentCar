@@ -13,11 +13,12 @@ def create_app():
     
     app.config.from_object(Config)
     
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "*"}})
    
     db.init_app(app)
     
     app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(reports_bp, url_prefix='/api')
     
     @event.listens_for(Engine, "connect")
     def set_sqlite_pragma(dbapi_connection, connection_record):

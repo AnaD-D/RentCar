@@ -12,7 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('tabla-marcas')) {
         cargarMarcas();
         document.getElementById('form-marca').addEventListener('submit', guardarMarca);
+        cargarModelos(); 
+        llenarSelect('/marcas', 'marca-modelo'); // Llena el desplegable de marcas
+        document.getElementById('form-modelo').addEventListener('submit', guardarModelo);
     }
+    
 
     // 3. VEHÍCULOS
     if (document.getElementById('form-vehiculo')) {
@@ -216,5 +220,42 @@ async function llenarSelect(endpoint, selectId, soloDisponibles = false) {
             opt.textContent = item.descripcion || item.nombre;
             select.appendChild(opt);
         });
+    }
+}
+
+// --- FUNCIONES DE CATÁLOGOS (MODELOS) ---
+async function cargarModelos() {
+    const tbody = document.getElementById('tabla-modelos');
+    const modelos = await API.get('/modelos');
+    
+    if (modelos && modelos.length > 0) {
+        tbody.innerHTML = modelos.map(m => `
+            <tr>
+                <td>${m.id}</td>
+                <td>${m.id_marca}</td>
+                <td class="fw-bold">${m.descripcion}</td>
+                <td><span class="badge ${m.estado ? 'bg-success':'bg-danger'}">${m.estado ? 'Activo':'Inactivo'}</span></td>
+            </tr>
+        `).join('');
+    } else {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay modelos registrados.</td></tr>';
+    }
+}
+
+async function guardarModelo(e) {
+    e.preventDefault(); 
+    
+    const idMarca = document.getElementById('marca-modelo').value;
+    const descripcion = document.getElementById('desc-modelo').value;
+
+    const nuevoModelo = {
+        id_marca: parseInt(idMarca),
+        descripcion: descripcion,
+        estado: true
+    };
+
+    if (await API.post('/modelos', nuevoModelo)) {
+        document.getElementById('form-modelo').reset(); 
+        cargarModelos(); 
     }
 }
