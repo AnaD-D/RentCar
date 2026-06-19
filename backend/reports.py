@@ -1,8 +1,6 @@
-import pandas as pd
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from models import db, RentaDevolucion, Vehiculo, TipoVehiculo, Cliente
 from fpdf import FPDF
-from flask import send_file
 import io
 
 reports_bp = Blueprint('reports_bp', __name__)
@@ -27,24 +25,26 @@ def reporte_rentas():
 
     resultados = query.all()
 
-    if not resultados:
-        return jsonify([]), 200
+    # Formatear datos usando Python nativo (Sin usar Pandas para mayor velocidad)
+    data = []
+    for r in resultados:
+        data.append({
+            "no_renta": r.no_renta,
+            "fecha_renta": str(r.fecha_renta),
+            "monto_x_dia": float(r.monto_x_dia),
+            "cantidad_dias": r.cantidad_dias,
+            "tipo_vehiculo": r.tipo_vehiculo,
+            "total_generado": float(r.monto_x_dia * r.cantidad_dias) # Cálculo directo
+        })
 
-    df = pd.DataFrame(resultados)
-    
-    # ingreso total por renta
-    df['total_generado'] = df['monto_x_dia'] * df['cantidad_dias']
-
-    df['fecha_renta'] = df['fecha_renta'].astype(str)
-
-    return df.to_json(orient='records'), 200
+    return jsonify(data), 200
 
 @reports_bp.route('/reporte-rentas/exportar-pdf', methods=['GET'])
 def exportar_pdf():
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
 
-    # 1. Nueva consulta que trae Cliente, Vehículo y Días
+    # 1. Consulta que trae Cliente, Vehículo y Días
     query = db.session.query(
         RentaDevolucion.id.label('no_renta'),
         RentaDevolucion.fecha_renta,
@@ -60,7 +60,7 @@ def exportar_pdf():
 
     resultados = query.all()
 
-    # 2. Crear PDF en Horizontal (Landscape - 'L') para que quepan las columnas
+    # 2. Crear PDF en Horizontal (Landscape - 'L')
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
@@ -69,7 +69,7 @@ def exportar_pdf():
     pdf.cell(0, 10, txt="Reporte Detallado de Rentas - Sistema RentCar", ln=True, align='C')
     pdf.ln(5) 
     
-    # 3. Nuevos encabezados con anchos ajustados
+    # 3. Encabezados
     pdf.set_font("Arial", style='B', size=11)
     pdf.cell(20, 10, txt="No.", border=1, align='C')
     pdf.cell(30, 10, txt="Fecha", border=1, align='C')
@@ -83,7 +83,7 @@ def exportar_pdf():
     for r in resultados:
         total = float(r.monto_x_dia * r.cantidad_dias)
         
-        # Recortar nombres muy largos para que no rompan la tabla
+        # Recortar nombres muy largos
         cliente_nombre = (r.cliente[:25] + '..') if len(r.cliente) > 27 else r.cliente
         vehiculo_desc = (r.vehiculo[:45] + '..') if len(r.vehiculo) > 47 else r.vehiculo
         
@@ -92,13 +92,14 @@ def exportar_pdf():
         pdf.cell(60, 10, txt=cliente_nombre, border=1, align='L')
         pdf.cell(90, 10, txt=vehiculo_desc, border=1, align='L')
         pdf.cell(25, 10, txt=str(r.cantidad_dias), border=1, align='C')
-        pdf.cell(40, 10, txt=f"${total:,.2f}", border=1, align='C', ln=True)
+        
+        # Ajuste a RD$ para mantener coherencia de moneda
+        pdf.cell(40, 10, txt=f"RD$ {total:,.2f}", border=1, align='C', ln=True)
    
     pdf_buffer = io.BytesIO()
     pdf.output(pdf_buffer)
     pdf_buffer.seek(0)
 
-    # Enviar al frontend
     return send_file(
         pdf_buffer, 
         as_attachment=True, 

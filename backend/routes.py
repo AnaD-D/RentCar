@@ -1,12 +1,11 @@
 from flask import Blueprint, jsonify, request
 from models import db, Marca, TipoVehiculo, TipoCombustible, Modelo, Vehiculo, Cliente, Empleado, Inspeccion, RentaDevolucion
 from datetime import datetime
-from models import Cliente
 from utils import validar_cedula_dominicana
 
 api_bp = Blueprint('api_bp', __name__)
 
-# Gestión Marcas
+# GESTIÓN DE MARCAS
 @api_bp.route('/marcas', methods=['GET'])
 def get_marcas():
     marcas = Marca.query.all()
@@ -16,34 +15,28 @@ def get_marcas():
 @api_bp.route('/marcas', methods=['POST'])
 def create_marca():
     datos = request.get_json()
-
     if 'descripcion' not in datos or not datos['descripcion'].strip():
         return jsonify({"error": "La descripción es obligatoria"}), 400
 
-    nueva_marca = Marca(
-        descripcion=datos['descripcion'],
-        estado=datos.get('estado', True)
-    )
+    nueva_marca = Marca(descripcion=datos['descripcion'], estado=datos.get('estado', True))
     db.session.add(nueva_marca)
     db.session.commit()
-
     return jsonify({"mensaje": "Marca guardada exitosamente", "id": nueva_marca.id}), 201
 
 @api_bp.route('/marcas/<int:id>', methods=['DELETE'])
 def delete_marca(id):
     marca = Marca.query.get(id)
-    if not marca:
-        return jsonify({"error": "Marca no encontrada"}), 404
-        
+    if not marca: return jsonify({"error": "Marca no encontrada"}), 404
     try:
         db.session.delete(marca)
         db.session.commit()
         return jsonify({"mensaje": "Marca eliminada exitosamente"}), 200
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         return jsonify({"error": "No puedes eliminar esta marca porque tiene modelos o vehículos asociados."}), 400
 
-# Gestión Tipos de Vehículo
+
+# GESTIÓN DE TIPOS DE VEHÍCULO
 @api_bp.route('/tipos_vehiculo', methods=['GET'])
 def get_tipos():
     tipos = TipoVehiculo.query.all()
@@ -57,7 +50,19 @@ def create_tipo():
     db.session.commit()
     return jsonify({"mensaje": "Tipo de vehículo guardado", "id": nuevo_tipo.id}), 201
 
-# Gestión Tipo de Combustible 
+@api_bp.route('/tipos_vehiculo/<int:id>', methods=['DELETE'])
+def delete_tipo(id):
+    item = TipoVehiculo.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "No se puede eliminar porque está en uso."}), 400
+
+
+# GESTIÓN DE COMBUSTIBLES
 @api_bp.route('/combustibles', methods=['GET'])
 def get_combustibles():
     combustibles = TipoCombustible.query.all()
@@ -71,7 +76,18 @@ def create_combustible():
     db.session.commit()
     return jsonify({"mensaje": "Combustible guardado", "id": nuevo_combustible.id}), 201
 
-# Gestión Modelos
+@api_bp.route('/combustibles/<int:id>', methods=['DELETE'])
+def delete_combustible(id):
+    item = TipoCombustible.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "No se puede eliminar porque está en uso."}), 400
+
+# GESTIÓN DE MODELOS
 @api_bp.route('/modelos', methods=['GET'])
 def get_modelos():
     modelos = Modelo.query.all()
@@ -85,7 +101,18 @@ def create_modelo():
     db.session.commit()
     return jsonify({"mensaje": "Modelo guardado", "id": nuevo.id}), 201
 
-# Gestión vehiculos
+@api_bp.route('/modelos/<int:id>', methods=['DELETE'])
+def delete_modelo(id):
+    item = Modelo.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "No se puede eliminar porque está en uso."}), 400
+
+# GESTIÓN DE VEHÍCULOS
 @api_bp.route('/vehiculos', methods=['GET'])
 def get_vehiculos():
     vehiculos = Vehiculo.query.all()
@@ -110,7 +137,18 @@ def create_vehiculo():
     db.session.commit()
     return jsonify({"mensaje": "Vehículo registrado", "id": nuevo.id}), 201
 
-# Gestión Clientes
+@api_bp.route('/vehiculos/<int:id>', methods=['DELETE'])
+def delete_vehiculo(id):
+    item = Vehiculo.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "No se puede eliminar porque está en uso en rentas o inspecciones."}), 400
+
+# GESTIÓN DE CLIENTES
 @api_bp.route('/clientes', methods=['GET'])
 def get_clientes():
     clientes = Cliente.query.all()
@@ -125,7 +163,7 @@ def create_cliente():
     datos = request.get_json()
     
     if not validar_cedula_dominicana(datos['cedula']):
-        return jsonify({"error": "La cédula introducida no es válida en República Dominicana."}), 400
+        return jsonify({"error": "La cédula introducida no es válida."}), 400
     
     nuevo = Cliente(
         nombre=datos['nombre'], cedula=datos['cedula'],
@@ -136,7 +174,18 @@ def create_cliente():
     db.session.commit()
     return jsonify({"mensaje": "Cliente registrado", "id": nuevo.id}), 201
 
-# Gestión Empleados 
+@api_bp.route('/clientes/<int:id>', methods=['DELETE'])
+def delete_cliente(id):
+    item = Cliente.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "No se puede eliminar porque este cliente ya tiene rentas registradas."}), 400
+
+# GESTIÓN DE EMPLEADOS
 @api_bp.route('/empleados', methods=['GET'])
 def get_empleados():
     empleados = Empleado.query.all()
@@ -159,7 +208,18 @@ def create_empleado():
     db.session.commit()
     return jsonify({"mensaje": "Empleado registrado", "id": nuevo.id}), 201
 
-# Proceso de Inspección
+@api_bp.route('/empleados/<int:id>', methods=['DELETE'])
+def delete_empleado(id):
+    item = Empleado.query.get(id)
+    try:
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado"}), 200
+    except:
+        db.session.rollback()
+        return jsonify({"error": "No se puede eliminar porque está en uso."}), 400
+
+# INSPECCIONES Y RENTAS
 @api_bp.route('/inspecciones', methods=['POST'])
 def create_inspeccion():
     datos = request.get_json()
@@ -175,13 +235,30 @@ def create_inspeccion():
     db.session.commit()
     return jsonify({"mensaje": "Inspección guardada exitosamente", "id": nueva.id}), 201
 
-# Proceso de Renta y devolución
+@api_bp.route('/rentas', methods=['GET'])
+def get_todas_rentas():
+    rentas = db.session.query(
+        RentaDevolucion.id,
+        RentaDevolucion.fecha_renta,
+        RentaDevolucion.estado,
+        Cliente.nombre.label('cliente'),
+        Vehiculo.descripcion.label('vehiculo')
+    ).join(Cliente, RentaDevolucion.id_cliente == Cliente.id)\
+     .join(Vehiculo, RentaDevolucion.id_vehiculo == Vehiculo.id).all()
+    
+    return jsonify([{
+        "id": r.id,
+        "fecha_renta": r.fecha_renta.strftime('%Y-%m-%d'),
+        "cliente": r.cliente,
+        "vehiculo": r.vehiculo,
+        "estado": r.estado
+    } for r in rentas]), 200
+
 @api_bp.route('/rentas', methods=['POST'])
 def create_renta():
     datos = request.get_json()
-    
-    # Verificar si el vehículo está disponible
     vehiculo = Vehiculo.query.get(datos['id_vehiculo'])
+    
     if not vehiculo or vehiculo.estado != 'Disponible':
         return jsonify({"error": "El vehículo no está disponible para renta"}), 400
         
@@ -193,8 +270,6 @@ def create_renta():
         cantidad_dias=datos['cantidad_dias'], comentario=datos.get('comentario', ''),
         estado='Activa'
     )
-    
-    # Cambiar automáticamente el estado del vehículo a rentado
     vehiculo.estado = 'Rentado'
     
     db.session.add(nueva_renta)
@@ -213,98 +288,9 @@ def procesar_devolucion(id):
     renta.fecha_devolucion = fecha_d
     renta.estado = 'Completada'
     
-    # Liberar el vehículo 'Disponible' nuevamente
     vehiculo = Vehiculo.query.get(renta.id_vehiculo)
     if vehiculo:
         vehiculo.estado = 'Disponible'
         
     db.session.commit()
     return jsonify({"mensaje": "Devolución procesada y vehículo liberado"}), 200
-
-# RUTAS PARA ELIMINAR
-
-@api_bp.route('/tipos_vehiculo/<int:id>', methods=['DELETE'])
-def delete_tipo(id):
-    item = TipoVehiculo.query.get(id)
-    try:
-        db.session.delete(item)
-        db.session.commit()
-        return jsonify({"mensaje": "Eliminado"}), 200
-    except:
-        db.session.rollback()
-        return jsonify({"error": "En uso"}), 400
-
-@api_bp.route('/combustibles/<int:id>', methods=['DELETE'])
-def delete_combustible(id):
-    item = TipoCombustible.query.get(id)
-    try:
-        db.session.delete(item)
-        db.session.commit()
-        return jsonify({"mensaje": "Eliminado"}), 200
-    except:
-        db.session.rollback()
-        return jsonify({"error": "En uso"}), 400
-
-@api_bp.route('/modelos/<int:id>', methods=['DELETE'])
-def delete_modelo(id):
-    item = Modelo.query.get(id)
-    try:
-        db.session.delete(item)
-        db.session.commit()
-        return jsonify({"mensaje": "Eliminado"}), 200
-    except:
-        db.session.rollback()
-        return jsonify({"error": "En uso"}), 400
-
-@api_bp.route('/vehiculos/<int:id>', methods=['DELETE'])
-def delete_vehiculo(id):
-    item = Vehiculo.query.get(id)
-    try:
-        db.session.delete(item)
-        db.session.commit()
-        return jsonify({"mensaje": "Eliminado"}), 200
-    except:
-        db.session.rollback()
-        return jsonify({"error": "En uso"}), 400
-
-@api_bp.route('/empleados/<int:id>', methods=['DELETE'])
-def delete_empleado(id):
-    item = Empleado.query.get(id)
-    try:
-        db.session.delete(item)
-        db.session.commit()
-        return jsonify({"mensaje": "Eliminado"}), 200
-    except:
-        db.session.rollback()
-        return jsonify({"error": "En uso"}), 400
-    
-@api_bp.route('/clientes/<int:id>', methods=['DELETE'])
-def delete_cliente(id):
-    item = Cliente.query.get(id)
-    try:
-        db.session.delete(item)
-        db.session.commit()
-        return jsonify({"mensaje": "Eliminado"}), 200
-    except:
-        db.session.rollback()
-        return jsonify({"error": "No se puede eliminar porque este cliente ya tiene rentas o inspecciones registradas."}), 400
-    
-@api_bp.route('/rentas', methods=['GET'])
-def get_todas_rentas():
-    # Hacemos un JOIN para que el JSON incluya el nombre del cliente y del vehículo
-    rentas = db.session.query(
-        RentaDevolucion.id,
-        RentaDevolucion.fecha_renta,
-        RentaDevolucion.estado,
-        Cliente.nombre.label('cliente'),
-        Vehiculo.descripcion.label('vehiculo')
-    ).join(Cliente, RentaDevolucion.id_cliente == Cliente.id)\
-     .join(Vehiculo, RentaDevolucion.id_vehiculo == Vehiculo.id).all()
-    
-    return jsonify([{
-        "id": r.id,
-        "fecha_renta": r.fecha_renta.strftime('%Y-%m-%d'),
-        "cliente": r.cliente,
-        "vehiculo": r.vehiculo,
-        "estado": r.estado
-    } for r in rentas]), 200

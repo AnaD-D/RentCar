@@ -3,23 +3,23 @@
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. DASHBOARD
+    // DASHBOARD
     if (document.getElementById('kpi-disponibles')) {
         cargarDashboard();
     }
 
-    // 2. CATÁLOGOS (Marcas, Modelos, Tipos y Combustibles)
+    // CATÁLOGOS
     if (document.getElementById('tabla-marcas')) {
         // Inicializar Marcas
         cargarMarcas();
         document.getElementById('form-marca').addEventListener('submit', guardarMarca);
         
-        // Inicializar Modelos
+        // Modelos
         cargarModelos(); 
         llenarSelect('/marcas', 'marca-modelo');
         document.getElementById('form-modelo').addEventListener('submit', guardarModelo);
 
-        // Inicializar Tipos de Vehículo
+        // Tipos de Vehículo
         cargarTipos();
         document.getElementById('form-tipo').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Inicializar Combustibles
+        // Combustibles
         cargarCombustibles();
         document.getElementById('form-combustible').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. VEHÍCULOS
+    // VEHÍCULOS
     if (document.getElementById('form-vehiculo')) {
         cargarVehiculos();
         llenarSelect('/marcas', 'marca-vehiculo');
@@ -50,13 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('form-vehiculo').addEventListener('submit', guardarVehiculo);
     }
 
-    // 4. CLIENTES
+    // CLIENTES
     if (document.getElementById('tabla-clientes')) {
         cargarClientes();
         document.getElementById('form-cliente').addEventListener('submit', guardarCliente);
     }
 
-    // 5. EMPLEADOS (¡La sección que faltaba!)
+    // EMPLEADOS
     if (document.getElementById('form-empleado')) {
         cargarEmpleados();
         document.getElementById('form-empleado').addEventListener('submit', async (e) => {
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 6. RENTAS E INSPECCIONES
+    // RENTAS E INSPECCIONES
     if (document.getElementById('form-inspeccion')) {
         llenarSelect('/vehiculos', 'insp-vehiculo', true); 
         llenarSelect('/clientes', 'insp-cliente');
@@ -90,42 +90,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('form-devolucion').addEventListener('submit', guardarDevolucion);
     }
 
-    // 7. REPORTES
+    // REPORTES
     if (document.getElementById('form-filtros')) {
         document.getElementById('form-filtros').addEventListener('submit', filtrarReportes);
     }
 });
 
 // FUNCIONES DEL DASHBOARD 
-// --- FUNCIONES DEL DASHBOARD ---
 async function cargarDashboard() {
-    // 1. KPI: Vehículos Disponibles
     const vehiculos = await API.get('/vehiculos');
     if (vehiculos) {
         const disponibles = vehiculos.filter(v => v.estado === 'Disponible').length;
         document.getElementById('kpi-disponibles').innerText = disponibles;
     }
 
-    // 2. KPI: Ingresos Totales
     const reporte = await API.get('/reporte-rentas');
     if (reporte) {
-        // Agregamos parseFloat() para obligar a JS a hacer matemática pura
         const ingresosTotales = reporte.reduce((sum, r) => sum + parseFloat(r.total_generado), 0);
-        
-        // Formateamos con comas y siempre mostrando 2 decimales
         document.getElementById('kpi-ingresos').innerText = `RD$ ${ingresosTotales.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
 
-    // 3. KPI: Rentas Activas y Tabla Dinámica
     const rentas = await API.get('/rentas');
     const tbody = document.getElementById('tabla-ultimas-rentas');
     
     if (rentas && rentas.length > 0) {
-        // Filtrar estrictamente las "Activas" para que el número baje cuando devuelvas un auto
         const activas = rentas.filter(r => r.estado === 'Activa').length;
         document.getElementById('kpi-rentas').innerText = activas;
-
-        // Voltear el arreglo para ver las más recientes primero y tomar solo las últimas 5
         const ultimas = rentas.reverse().slice(0, 5);
         
         tbody.innerHTML = ultimas.map(r => `
@@ -149,29 +139,17 @@ async function cargarMarcas() {
     const marcas = await API.get('/marcas');
     if (marcas) {
         tbody.innerHTML = marcas.map(m => `
-            <tr><td>${m.id}</td><td class="fw-bold">${m.descripcion}</td><td><span class="badge ${m.estado ? 'bg-success':'bg-danger'}">${m.estado ? 'Activo':'Inactivo'}</span></td></tr>
-        `).join('');
-    }
-    tbody.innerHTML = marcas.map(m => `
             <tr>
                 <td>${m.id}</td>
                 <td class="fw-bold">${m.descripcion}</td>
                 <td><span class="badge ${m.estado ? 'bg-success':'bg-danger'}">${m.estado ? 'Activo':'Inactivo'}</span></td>
                 <td>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarMarca(${m.id})">
+                    <button class="btn btn-sm btn-danger" onclick="eliminarRegistro('/marcas', ${m.id}, cargarMarcas)">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </td>
             </tr>
         `).join('');
-}
-
-async function eliminarMarca(id) {
-    if (confirm("¿Estás segura de que deseas eliminar esta marca?")) {
-        const respuesta = await API.delete(`/marcas/${id}`);
-        if (respuesta) {
-            cargarMarcas(); 
-        }
     }
 }
 
@@ -184,7 +162,76 @@ async function guardarMarca(e) {
     }
 }
 
-// FUNCIONES DE VEHÍCULOS
+async function cargarModelos() {
+    const tbody = document.getElementById('tabla-modelos');
+    if (!tbody) return;
+    const modelos = await API.get('/modelos');
+    if (modelos && modelos.length > 0) {
+        tbody.innerHTML = modelos.map(m => `
+            <tr>
+                <td>${m.id}</td>
+                <td>${m.id_marca}</td>
+                <td class="fw-bold">${m.descripcion}</td>
+                <td><span class="badge ${m.estado ? 'bg-success':'bg-danger'}">${m.estado ? 'Activo':'Inactivo'}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarRegistro('/modelos', ${m.id}, cargarModelos)">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } else {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay modelos registrados.</td></tr>';
+    }
+}
+
+async function guardarModelo(e) {
+    e.preventDefault(); 
+    const idMarca = document.getElementById('marca-modelo').value;
+    const descripcion = document.getElementById('desc-modelo').value;
+    const nuevoModelo = { id_marca: parseInt(idMarca), descripcion: descripcion, estado: true };
+
+    if (await API.post('/modelos', nuevoModelo)) {
+        document.getElementById('form-modelo').reset(); 
+        cargarModelos(); 
+    }
+}
+
+async function cargarTipos() {
+    const tbody = document.getElementById('tabla-tipos');
+    const datos = await API.get('/tipos_vehiculo');
+    if (datos && datos.length > 0) {
+        tbody.innerHTML = datos.map(t => `
+            <tr>
+                <td>${t.id}</td>
+                <td class="fw-bold">${t.descripcion}</td>
+                <td><span class="badge ${t.estado ? 'bg-success':'bg-danger'}">Activo</span></td>
+                <td><button class="btn btn-sm btn-danger" onclick="eliminarRegistro('/tipos_vehiculo', ${t.id}, cargarTipos)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+        `).join('');
+    } else {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay registros.</td></tr>';
+    }
+}
+
+async function cargarCombustibles() {
+    const tbody = document.getElementById('tabla-combustibles');
+    const datos = await API.get('/combustibles');
+    if (datos && datos.length > 0) {
+        tbody.innerHTML = datos.map(c => `
+            <tr>
+                <td>${c.id}</td>
+                <td class="fw-bold">${c.descripcion}</td>
+                <td><span class="badge ${c.estado ? 'bg-success':'bg-danger'}">Activo</span></td>
+                <td><button class="btn btn-sm btn-danger" onclick="eliminarRegistro('/combustibles', ${c.id}, cargarCombustibles)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+        `).join('');
+    } else {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay registros.</td></tr>';
+    }
+}
+
+// FUNCIONES DE VEHÍCULOS Y CLIENTES
 async function cargarVehiculos() {
     const tbody = document.getElementById('tabla-vehiculos');
     if (!tbody) return;
@@ -202,7 +249,7 @@ async function cargarVehiculos() {
             </tr>
         `).join('');
     } else {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No hay vehículos registrados.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay vehículos registrados.</td></tr>';
     }
 }
 
@@ -224,13 +271,10 @@ async function guardarVehiculo(e) {
     }
 }
 
-// FUNCIONES DE CLIENTES
 async function cargarClientes() {
     const tbody = document.getElementById('tabla-clientes');
     if (!tbody) return;
-    
     const clientes = await API.get('/clientes');
-    
     if (clientes && clientes.length > 0) {
         tbody.innerHTML = clientes.map(c => `
             <tr>
@@ -267,7 +311,30 @@ async function guardarCliente(e) {
     }
 }
 
-// FUNCIONES DE RENTAS E INSPECCIONES
+// FUNCIONES DE EMPLEADOS
+async function cargarEmpleados() {
+    const tbody = document.getElementById('tabla-empleados');
+    if (!tbody) return;
+    const empleados = await API.get('/empleados');
+    if (empleados && empleados.length > 0) {
+        tbody.innerHTML = empleados.map(e => `
+            <tr>
+                <td>${e.id}</td>
+                <td class="fw-bold">${e.nombre}</td>
+                <td>${e.cedula}</td>
+                <td>${e.tanda_labor}</td>
+                <td>${e.porciento_comision}%</td>
+                <td>${e.fecha_ingreso}</td>
+                <td><span class="badge ${e.estado ? 'bg-success' : 'bg-danger'}">Activo</span></td>
+                <td><button class="btn btn-sm btn-danger" onclick="eliminarRegistro('/empleados', ${e.id}, cargarEmpleados)"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+        `).join('');
+    } else {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No hay empleados registrados.</td></tr>';
+    }
+}
+
+// RENTAS, INSPECCIONES Y REPORTES
 async function guardarInspeccion(e) {
     e.preventDefault();
     const data = {
@@ -311,7 +378,6 @@ async function guardarDevolucion(e) {
     if (res) alert(res.mensaje || res.error);
 }
 
-// FUNCIONES DE REPORTES 
 async function filtrarReportes(e) {
     e.preventDefault();
     const inicio = document.getElementById('filtro-inicio').value;
@@ -324,11 +390,11 @@ async function filtrarReportes(e) {
             <tr><td>${r.no_renta}</td><td>${r.fecha_renta}</td><td>${r.tipo_vehiculo}</td><td>RD$ ${r.monto_x_dia}</td><td>${r.cantidad_dias}</td><td class="text-end fw-bold">RD$ ${r.total_generado.toLocaleString()}</td></tr>
         `).join('');
     } else {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Sin resultados.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Sin resultados.</td></tr>';
     }
 }
 
-// LLENAR SELECTS
+// HELPERS
 async function llenarSelect(endpoint, selectId, soloDisponibles = false) {
     const select = document.getElementById(selectId);
     if (!select) return;
@@ -341,161 +407,6 @@ async function llenarSelect(endpoint, selectId, soloDisponibles = false) {
             opt.textContent = item.descripcion || item.nombre;
             select.appendChild(opt);
         });
-    }
-}
-
-// FUNCIONES DE CATÁLOGOS (MODELOS)
-async function cargarModelos() {
-    const tbody = document.getElementById('tabla-modelos');
-    if (!tbody) return;
-    
-    const modelos = await API.get('/modelos');
-    
-    if (modelos && modelos.length > 0) {
-        tbody.innerHTML = modelos.map(m => `
-            <tr>
-                <td>${m.id}</td>
-                <td>${m.id_marca}</td>
-                <td class="fw-bold">${m.descripcion}</td>
-                <td><span class="badge ${m.estado ? 'bg-success':'bg-danger'}">${m.estado ? 'Activo':'Inactivo'}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarRegistro('/modelos', ${m.id}, cargarModelos)">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-    } else {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay modelos registrados.</td></tr>';
-    }
-}
-async function guardarModelo(e) {
-    e.preventDefault(); 
-    
-    const idMarca = document.getElementById('marca-modelo').value;
-    const descripcion = document.getElementById('desc-modelo').value;
-
-    const nuevoModelo = {
-        id_marca: parseInt(idMarca),
-        descripcion: descripcion,
-        estado: true
-    };
-
-    if (await API.post('/modelos', nuevoModelo)) {
-        document.getElementById('form-modelo').reset(); 
-        cargarModelos(); 
-    }
-}
-
-// TIPOS DE VEHÍCULOS Y COMBUSTIBLES
-if (document.getElementById('tabla-tipos')) {
-    cargarTablaSimple('/tipos_vehiculo', 'tabla-tipos');
-    document.getElementById('form-tipo').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await API.post('/tipos_vehiculo', { descripcion: document.getElementById('desc-tipo').value });
-        location.reload();
-    });
-
-    cargarTablaSimple('/combustibles', 'tabla-combustibles');
-    document.getElementById('form-combustible').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await API.post('/combustibles', { descripcion: document.getElementById('desc-combustible').value });
-        location.reload();
-    });
-}
-
-// FUNCIONES DE EMPLEADOS
-if (document.getElementById('form-empleado')) {
-    cargarTablaSimple('/empleados', 'tabla-empleados'); 
-    document.getElementById('form-empleado').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = {
-            nombre: document.getElementById('emp-nombre').value,
-            cedula: document.getElementById('emp-cedula').value,
-            tanda_labor: document.getElementById('emp-tanda').value,
-            porciento_comision: document.getElementById('emp-comision').value,
-            fecha_ingreso: document.getElementById('emp-fecha').value
-        };
-        if (await API.post('/empleados', data)) {
-            alert('Empleado registrado exitosamente');
-            location.reload();
-        }
-    });
-}
-
-async function cargarEmpleados() {
-    const tbody = document.getElementById('tabla-empleados');
-    if (!tbody) return;
-    const empleados = await API.get('/empleados');
-    if (empleados && empleados.length > 0) {
-        tbody.innerHTML = empleados.map(e => `
-            <tr>
-                <td>${e.id}</td>
-                <td class="fw-bold">${e.nombre}</td>
-                <td>${e.cedula}</td>
-                <td>${e.tanda_labor}</td>
-                <td>${e.porciento_comision}%</td>
-                <td>${e.fecha_ingreso}</td>
-                <td><span class="badge ${e.estado ? 'bg-success' : 'bg-danger'}">Activo</span></td>
-                <td><button class="btn btn-sm btn-danger" onclick="eliminarRegistro('/empleados', ${e.id}, cargarEmpleados)"><i class="fa-solid fa-trash"></i></button></td>
-            </tr>
-        `).join('');
-    } else {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center">No hay empleados registrados.</td></tr>';
-    }
-}
-
-// Gestión de Empleados
-if (document.getElementById('form-empleado')) {
-    cargarEmpleados(); // 
-    
-    document.getElementById('form-empleado').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = {
-            nombre: document.getElementById('emp-nombre').value,
-            cedula: document.getElementById('emp-cedula').value,
-            tanda_labor: document.getElementById('emp-tanda').value,
-            porciento_comision: document.getElementById('emp-comision').value,
-            fecha_ingreso: document.getElementById('emp-fecha').value
-        };
-        if (await API.post('/empleados', data)) {
-            document.getElementById('form-empleado').reset();
-            cargarEmpleados(); 
-        }
-    });
-}
-
-async function cargarTipos() {
-    const tbody = document.getElementById('tabla-tipos');
-    const datos = await API.get('/tipos_vehiculo');
-    if (datos && datos.length > 0) {
-        tbody.innerHTML = datos.map(t => `
-            <tr>
-                <td>${t.id}</td>
-                <td class="fw-bold">${t.descripcion}</td>
-                <td><span class="badge ${t.estado ? 'bg-success':'bg-danger'}">Activo</span></td>
-                <td><button class="btn btn-sm btn-danger" onclick="eliminarRegistro('/tipos_vehiculo', ${t.id}, cargarTipos)"><i class="fa-solid fa-trash"></i></button></td>
-            </tr>
-        `).join('');
-    } else {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No hay registros.</td></tr>';
-    }
-}
-
-async function cargarCombustibles() {
-    const tbody = document.getElementById('tabla-combustibles');
-    const datos = await API.get('/combustibles');
-    if (datos && datos.length > 0) {
-        tbody.innerHTML = datos.map(c => `
-            <tr>
-                <td>${c.id}</td>
-                <td class="fw-bold">${c.descripcion}</td>
-                <td><span class="badge ${c.estado ? 'bg-success':'bg-danger'}">Activo</span></td>
-                <td><button class="btn btn-sm btn-danger" onclick="eliminarRegistro('/combustibles', ${c.id}, cargarCombustibles)"><i class="fa-solid fa-trash"></i></button></td>
-            </tr>
-        `).join('');
-    } else {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No hay registros.</td></tr>';
     }
 }
 
